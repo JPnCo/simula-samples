@@ -2,3 +2,8 @@
 /target/
 .settings
 .classpath
+*.log
+.idea/
+*.iml
+.vscode/
+.DS_Store

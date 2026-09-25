@@ -1,13 +1,11 @@
 <!--
 Sync Impact Report
 ------------------
-Version change: n/a (template) -> 1.0.0
-Initial constitution for the simula-samples project, adapted from the SIMULA
-constitution (v1.8.0).
+Version change: 1.1.0 -> 1.2.0
 Modified principles:
-  - VIII. Architecture Document: removed the per-functional-branch requirement
-    (specs/NNN-.../architecture.md) which does not apply to this samples repo;
-    kept the root architecture.md requirement and Mermaid diagram rule.
+  - II. Coverage Standard: made explicit that every sample under
+    jpnco.simula.samples is a deliverable and MUST satisfy the same 97% line and
+    branch coverage thresholds (no sample exemption).
 Added sections: none
 Removed sections: none
 Follow-up TODOs: none
@@ -26,10 +24,13 @@ test written first.
 
 ### II. Coverage Standard
 Every deliverable MUST achieve a line coverage and a branch coverage of at least
-97%. Coverage is measured by an automated coverage tool against the code under
-test; a merge or release is blocked when either metric falls below the threshold.
+97%. This includes every sample: each sub-package of `jpnco.simula.samples` is a
+deliverable and MUST satisfy the same 97% line and branch coverage thresholds.
+Coverage is measured by an automated coverage tool against the code under test;
+a merge or release is blocked when either metric falls below the threshold.
 Rationale: branch coverage prevents the common failure of hitting every line while
-leaving conditional paths untested.
+leaving conditional paths untested; samples are first-class deliverables and must
+meet the same standard as any other code.
 
 ### III. English Code
 All source code, identifiers, function names, variable names, string literals, and
@@ -99,6 +100,22 @@ it from accumulating obsolete or misleading content and ensures it stays a
 reliable entry point for contributors. Mermaid keeps diagrams machine-readable,
 version-controllable, and uniformly rendered.
 
+### IX. Sample Architecture Documents
+Every sub-package of `jpnco.simula.samples` is a sample and MUST have its own
+architecture document stored in the `docs` directory (one document per sample).
+The document MUST be updated as part of every change to the sub-package so that
+it always reflects the current architecture of the sample.
+- The sample architecture document MUST contain no historical information: it
+  MUST NOT record past states, superseded decisions, change logs, or migration
+  history. It describes only the architecture as it exists now.
+- The sample architecture document MUST follow the same conventions as Principle
+  VIII: all structural diagrams MUST be expressed as Mermaid diagrams inside
+  fenced blocks with the `mermaid` language tag, and the document MUST be kept
+  current with no historical detail.
+Rationale: each sample is self-contained documentation. Keeping a per-sample
+architecture document in `docs` gives contributors a reliable, living entry
+point for every sample without it accumulating obsolete content.
+
 ## Additional Constraints
 
 ### Quality Gates & Compliance
@@ -138,4 +155,4 @@ justified, and approved before it is accepted.
   principles; coverage, formatting, documentation, and language standards are
   enforced automatically where tooling allows.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-09-25
+**Version**: 1.2.0 | **Ratified**: 2026-09-25 | **Last Amended**: 2026-09-25
