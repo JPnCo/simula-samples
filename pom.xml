@@ -103,6 +103,9 @@
 						<exclude>jpnco/simula/samples/trafficlight/TrafficLightDemo.class</exclude>
 						<exclude>jpnco/simula/samples/trafficlight/actors/TrafficLightGui.class</exclude>
 						<exclude>jpnco/simula/samples/trafficlight/actors/TrafficLightGui$GridPanel.class</exclude>
+						<exclude>jpnco/simula/samples/boids/BoidsDemo.class</exclude>
+						<exclude>jpnco/simula/samples/boids/actors/BoidsGui.class</exclude>
+						<exclude>jpnco/simula/samples/boids/actors/BoidsGui$GridPanel.class</exclude>
 					</excludes>
 				</configuration>
 				<executions>

@@ -5,10 +5,12 @@ the **simula** actor-based simulation framework. Each sample is a self-contained
 the `jpnco.simula.samples` package and MUST satisfy the project constitution's 97% line and branch
 coverage gate (Principle II).
 
-The only sample currently shipped is the **traffic-light grid** under
-`jpnco.simula.samples.trafficlight`. Its detailed, per-sample architecture is maintained in
-[`docs/trafficligth-architecture.md`](./docs/trafficligth-architecture.md) per Constitution
-Principle IX; this document describes the project as a whole and how the sample fits into it.
+Two samples are currently shipped: the **traffic-light grid** under
+`jpnco.simula.samples.trafficlight` and the **boids flocking** sample under
+`jpnco.simula.samples.boids`. Their detailed, per-sample architectures are maintained in
+[`docs/trafficligth-architecture.md`](./docs/trafficligth-architecture.md) and
+[`docs/boids-architecture.md`](./docs/boids-architecture.md) per Constitution Principle IX; this
+document describes the project as a whole and how the samples fit into it.
 
 ---
 
@@ -37,8 +39,8 @@ package (self-containment, Constitution Principle IX).
 | Test stack | JUnit Jupiter 5.14 + Mockito 5.22 (test scope), Surefire |
 | Coverage gate | JaCoCo ≥97% line **and** branch (no sample exemption) |
 | Formatter | `fmt-maven-plugin` (google-java-format) enforced on `verify` |
-| Samples | `jpnco.simula.samples.trafficlight` (the only sample) |
-| Per-sample docs | `docs/trafficligth-architecture.md` |
+| Samples | `jpnco.simula.samples.trafficlight`, `jpnco.simula.samples.boids` |
+| Per-sample docs | `docs/trafficligth-architecture.md`, `docs/boids-architecture.md` |
 
 ---
 
@@ -50,22 +52,27 @@ flowchart TD
         POM["pom.xml<br/>Java 25 · JaCoCo ≥97% · fmt-maven-plugin"]
         SRC["src/main/java"]
         TEST["src/test/java"]
-        DOC["docs/trafficligth-architecture.md<br/>(per-sample, Principle IX)"]
+        DOC["docs/trafficligth-architecture.md<br/>docs/boids-architecture.md<br/>(per-sample, Principle IX)"]
         ROOTARC["architecture.md (this document)"]
         FRAMEWORK["jpnco:simula:0.0.1-SNAPSHOT<br/>(framework dependency)"]
     end
 
-    SRC -->|"hosts"| SAMPLE["jpnco.simula.samples.trafficlight"]
-    SAMPLE -->|"depends on"| FRAMEWORK
-    TEST -->|"tests"| SAMPLE
+    SRC -->|"hosts"| TL["jpnco.simula.samples.trafficlight"]
+    SRC -->|"hosts"| BOID["jpnco.simula.samples.boids"]
+    TL -->|"depends on"| FRAMEWORK
+    BOID -->|"depends on"| FRAMEWORK
+    TEST -->|"tests"| TL
+    TEST -->|"tests"| BOID
     POM -->|"builds"| SRC
     POM -->|"builds"| TEST
-    DOC -->|"documents"| SAMPLE
+    DOC -->|"documents"| TL
+    DOC -->|"documents"| BOID
     ROOTARC -->|"documents"| proj
 ```
 
-The traffic-light sample is further split into `actors` and `states` sub-packages; see
-[`docs/trafficligth-architecture.md`](./docs/trafficligth-architecture.md) for that detail.
+The traffic-light sample is split into `actors` and `states` sub-packages; see
+[`docs/trafficligth-architecture.md`](./docs/trafficligth-architecture.md) for that detail. The
+boids sample follows the same pattern; see [`docs/boids-architecture.md`](./docs/boids-architecture.md).
 
 ---
 
@@ -102,20 +109,51 @@ described in the per-sample architecture document
 
 ---
 
-## 5. Key Decisions
+## 5. Sample Overview: Boids Flocking
+
+The boids sample models a bounded, toroidal 2D world containing a fixed flock of autonomous boid
+agents that move by the classic Reynolds flocking rules (separation, alignment, cohesion) against
+their neighbours within a perception radius. It is runnable in console mode (default) or GUI mode,
+under either execution mode, with a fixed seed and configurable parameters (`--boids=`,
+`--perception-radius=`, `--max-speed=`) so every run is reproducible.
+
+```mermaid
+flowchart LR
+    ROOT["root EngineImpl"]
+    COORD["BoidsCoordinator"]
+    BOIDS["Boid ×n"]
+    BAR["Barrier"]
+    DISP["BoidsMonitor / BoidsGui"]
+
+    ROOT -->|"TIME_EVENT"| COORD
+    COORD -->|"NEXT_BOID_STATES"| BOIDS
+    BOIDS -->|"BOID_STATE"| BAR
+    BAR -->|"BOIDS_READY"| COORD
+    COORD -->|"NEW_STATE"| DISP
+```
+
+The full actor/topic model, the pure `BoidModel` rules, determinism, and thread-safety model are
+described in the per-sample architecture document
+[`docs/boids-architecture.md`](./docs/boids-architecture.md).
+
+---
+
+## 6. Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
 | Sample depends only on the framework **core** API | Keeps each sample self-contained (Constitution IX); no coupling to the framework's `examples` package |
 | Fixed `RANDOM_SEED` for all randomness | Reproducible runs; identical outcome across `VIRTUAL` and `PLATFORM` modes (FR-008, FR-009, SC-003) |
 | Two `Barrier` actors synchronize report grouping | Delegates the "all lights / all vehicles reported" condition to the framework's `Barrier`, replacing manual counters in the coordinator |
+| Boids: one `Barrier` + pure `BoidModel` | The boids sample reuses the same `Barrier`-driven grouping and isolates the flocking rules in a pure, testable `BoidModel` to reach the coverage gate |
 | JaCoCo ≥97% line and branch gate | Constitution Principle II applies to every sample deliverable |
 | `fmt-maven-plugin` enforced on `verify` | Constitution Principle V (automated formatting) |
 
 ---
 
-## 6. Related Documents
+## 7. Related Documents
 
-- `docs/trafficligth-architecture.md` — per-sample architecture (Mermaid, no history).
+- `docs/trafficligth-architecture.md` — traffic-light sample architecture (Mermaid, no history).
+- `docs/boids-architecture.md` — boids sample architecture (Mermaid, no history).
 - `.specify/memory/constitution.md` — the governing project constitution.
-- `specs/001-trafficlight/` — the feature specification, plan, and task list for the sample.
+- `specs/001-trafficlight/` and `specs/002-boids/` — the feature specifications, plans, and task lists for the samples.
