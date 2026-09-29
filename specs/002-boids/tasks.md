@@ -172,6 +172,6 @@ execution modes (FR-007, FR-008; SC-003, SC-005).
 
 ## Phase 6: Convergence
 
-- [ ] B019 Expose the three flocking rule weights via the CLI (`--separation-weight=`, `--alignment-weight=`, `--cohesion-weight=`) in `actors/BoidsCli.resolveParameters` so FR-009's "configurable at runtime" holds on the command-line interface too, and add tests (`BoidsCliTest`) covering the new overrides per FR-009 (partial)
+- [x] B019 Expose the three flocking rule weights via the CLI (`--separation-weight=`, `--alignment-weight=`, `--cohesion-weight=`) in `actors/BoidsCli.resolveParameters` so FR-009's "configurable at runtime" holds on the command-line interface too, and add tests (`BoidsCliTest`) covering the new overrides per FR-009 (partial)
 - [ ] B020 Document the unrequested GUI enhancements — the five live parameter sliders (with boundary/current value labels) and the direction-oriented triangle rendering of the boids — in `docs/boids-architecture.md` (and update the FR-009/SC-004 references there and in the spec/plan if applicable), or remove them, per SC-004 / Constitution VI (unrequested)
 

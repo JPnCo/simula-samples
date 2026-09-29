@@ -45,4 +45,24 @@ class BoidsCliTest {
     assertEquals(6.0, params.getMaxSpeed());
     assertTrue(params.getBoidCount() > 0);
   }
+
+  @Test
+  void resolveParameters_parses_the_flocking_rule_weights() {
+    final FlockParameters params =
+        BoidsCli.resolveParameters(
+            new String[] {
+              "--separation-weight=2.5", "--alignment-weight=1.5", "--cohesion-weight=0.5"
+            });
+    assertEquals(2.5, params.getSeparationWeight());
+    assertEquals(1.5, params.getAlignmentWeight());
+    assertEquals(0.5, params.getCohesionWeight());
+  }
+
+  @Test
+  void resolveParameters_defaults_the_weights_when_not_overridden() {
+    final FlockParameters params = BoidsCli.resolveParameters(new String[] {"--boids=8"});
+    assertEquals(FlockParameters.DEFAULT.getSeparationWeight(), params.getSeparationWeight());
+    assertEquals(FlockParameters.DEFAULT.getAlignmentWeight(), params.getAlignmentWeight());
+    assertEquals(FlockParameters.DEFAULT.getCohesionWeight(), params.getCohesionWeight());
+  }
 }

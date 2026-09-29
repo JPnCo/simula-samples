@@ -7,9 +7,10 @@ import jpnco.simula.engine.ExecutionMode;
  * a {@link FlockParameters} configuration. Extracted from {@link BoidsDemo} so the parsing rules
  * are independently testable.
  *
- * <p>The supported overrides are {@code --boids=<n>}, {@code --perception-radius=<n>} and {@code
- * --max-speed=<n>}; any other token is ignored and the defaults of {@link FlockParameters#DEFAULT}
- * are used for the parameters not explicitly overridden (FR-009).
+ * <p>The supported overrides are {@code --boids=<n>}, {@code --perception-radius=<n>}, {@code
+ * --max-speed=<n>}, {@code --separation-weight=<w>}, {@code --alignment-weight=<w>} and {@code
+ * --cohesion-weight=<w>}; any other token is ignored and the defaults of {@link
+ * FlockParameters#DEFAULT} are used for the parameters not explicitly overridden (FR-009).
  *
  * <p>This class is demonstration code under the {@code samples} package; it is not part of the
  * framework contract; per the project constitution it MUST satisfy the coverage gate.
@@ -40,6 +41,15 @@ public final class BoidsCli {
 
   /** The command-line prefix that overrides the maximum speed. */
   private static final String MAX_SPEED_PREFIX = "--max-speed=";
+
+  /** The command-line prefix that overrides the separation weight. */
+  private static final String SEPARATION_WEIGHT_PREFIX = "--separation-weight=";
+
+  /** The command-line prefix that overrides the alignment weight. */
+  private static final String ALIGNMENT_WEIGHT_PREFIX = "--alignment-weight=";
+
+  /** The command-line prefix that overrides the cohesion weight. */
+  private static final String COHESION_WEIGHT_PREFIX = "--cohesion-weight=";
 
   /** Private constructor to prevent instantiation of this utility class. */
   private BoidsCli() {}
@@ -80,8 +90,9 @@ public final class BoidsCli {
 
   /**
    * Resolves the {@link FlockParameters} from the command-line arguments, applying any {@code
-   * --boids=}, {@code --perception-radius=} or {@code --max-speed=} override and defaulting the
-   * rest from {@link FlockParameters#DEFAULT}. Participates in: FR-008, FR-009.
+   * --boids=}, {@code --perception-radius=}, {@code --max-speed=}, {@code --separation-weight=},
+   * {@code --alignment-weight=} or {@code --cohesion-weight=} override and defaulting the rest from
+   * {@link FlockParameters#DEFAULT}. Participates in: FR-008, FR-009.
    *
    * @param args the command-line arguments
    * @return the resolved parameters
@@ -89,11 +100,20 @@ public final class BoidsCli {
   public static FlockParameters resolveParameters(final String[] args) {
     final FlockParameters defaults = FlockParameters.DEFAULT;
     int boidCount = defaults.getBoidCount();
+    double separationWeight = defaults.getSeparationWeight();
+    double alignmentWeight = defaults.getAlignmentWeight();
+    double cohesionWeight = defaults.getCohesionWeight();
     double perceptionRadius = defaults.getPerceptionRadius();
     double maxSpeed = defaults.getMaxSpeed();
     for (final String arg : args) {
       if (arg.startsWith(BOIDS_PREFIX)) {
         boidCount = Integer.parseInt(arg.substring(BOIDS_PREFIX.length()));
+      } else if (arg.startsWith(SEPARATION_WEIGHT_PREFIX)) {
+        separationWeight = Double.parseDouble(arg.substring(SEPARATION_WEIGHT_PREFIX.length()));
+      } else if (arg.startsWith(ALIGNMENT_WEIGHT_PREFIX)) {
+        alignmentWeight = Double.parseDouble(arg.substring(ALIGNMENT_WEIGHT_PREFIX.length()));
+      } else if (arg.startsWith(COHESION_WEIGHT_PREFIX)) {
+        cohesionWeight = Double.parseDouble(arg.substring(COHESION_WEIGHT_PREFIX.length()));
       } else if (arg.startsWith(PERCEPTION_RADIUS_PREFIX)) {
         perceptionRadius = Double.parseDouble(arg.substring(PERCEPTION_RADIUS_PREFIX.length()));
       } else if (arg.startsWith(MAX_SPEED_PREFIX)) {
@@ -102,9 +122,9 @@ public final class BoidsCli {
     }
     return new FlockParameters(
         boidCount,
-        defaults.getSeparationWeight(),
-        defaults.getAlignmentWeight(),
-        defaults.getCohesionWeight(),
+        separationWeight,
+        alignmentWeight,
+        cohesionWeight,
         perceptionRadius,
         maxSpeed,
         defaults.getWorldWidth(),

@@ -8,7 +8,7 @@ class FlockParametersTest {
 
   @Test
   void defaults_match_the_configured_sensible_values() {
-    assertEquals(40, FlockParameters.DEFAULT.getBoidCount());
+    assertEquals(200, FlockParameters.DEFAULT.getBoidCount());
     assertEquals(1.0, FlockParameters.DEFAULT.getSeparationWeight());
     assertEquals(1.0, FlockParameters.DEFAULT.getAlignmentWeight());
     assertEquals(1.0, FlockParameters.DEFAULT.getCohesionWeight());
