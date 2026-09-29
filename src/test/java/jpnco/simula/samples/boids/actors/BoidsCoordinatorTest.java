@@ -3,6 +3,7 @@ package jpnco.simula.samples.boids.actors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import jpnco.simula.Engine;
@@ -79,6 +80,30 @@ class BoidsCoordinatorTest {
     assertEquals(8, state.getBoidCount());
     assertEquals(8, state.getBoids().size());
     assertNotNull(coordinator.getTotalDistance());
+
+    root.stop();
+  }
+
+  @Test
+  void updateParameters_propagates_the_new_values_to_every_boid() throws InterruptedException {
+    final EngineImpl root = new EngineImpl(ROOT_NAME, TIME_FACTOR, ExecutionMode.VIRTUAL);
+    final FlockParameters params = new FlockParameters(4, 1.0, 1.0, 1.0, 40.0, 4.0, 800.0, 600.0);
+    final BoidsCoordinator coordinator = new BoidsCoordinator(root, params, DURATION_SECONDS);
+    coordinator.seed();
+    root.registerAndStart(coordinator);
+    root.start();
+
+    final FlockParameters updated = new FlockParameters(4, 1.0, 1.0, 1.0, 40.0, 0.5, 800.0, 600.0);
+    coordinator.updateParameters(updated);
+    root.signal(EventImpl.createEvent(Engine.TIME_EVENT, root, 1));
+
+    final FlockState state = awaitSnapshot(coordinator);
+    assertNotNull(state, "a snapshot must be assembled after the boids report");
+    for (final jpnco.simula.samples.boids.states.BoidView boid : state.getBoids()) {
+      final double speed = Math.hypot(boid.getVx(), boid.getVy());
+      assertTrue(
+          speed <= 0.5 + 1e-9, "the lowered max speed must cap every boid velocity, was " + speed);
+    }
 
     root.stop();
   }

@@ -116,6 +116,7 @@ public final class BoidsDemo {
     coordinator.seed();
 
     final BoidsGui display = new BoidsGui(root);
+    display.attach(coordinator);
 
     root.registerAndStart(coordinator);
     root.registerAndStart(display);

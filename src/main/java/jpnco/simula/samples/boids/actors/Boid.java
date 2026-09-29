@@ -28,15 +28,6 @@ import jpnco.simula.samples.boids.states.FlockState;
  */
 final class Boid implements Actor {
 
-  /** The default separation weight applied by every boid (configurable via the pure model). */
-  private static final double SEPARATION_WEIGHT = 1.0;
-
-  /** The default alignment weight applied by every boid (configurable via the pure model). */
-  private static final double ALIGNMENT_WEIGHT = 1.0;
-
-  /** The default cohesion weight applied by every boid (configurable via the pure model). */
-  private static final double COHESION_WEIGHT = 1.0;
-
   /** The delegate that runs this actor's event loop. */
   private final Actor delegate;
 
@@ -55,11 +46,22 @@ final class Boid implements Actor {
   /** The velocity of the boid on the vertical axis. */
   private double vy;
 
-  /** The radius within which neighbouring boids are considered. */
-  private final double perceptionRadius;
+  /** The radius within which neighbouring boids are considered. Updated live by the GUI. */
+  private volatile double perceptionRadius;
 
-  /** The maximum speed (the velocity magnitude is capped at this value). */
-  private final double maxSpeed;
+  /**
+   * The maximum speed (the velocity magnitude is capped at this value). Updated live by the GUI.
+   */
+  private volatile double maxSpeed;
+
+  /** The weight of the separation rule. Updated live by the GUI. */
+  private volatile double separationWeight = 1.0;
+
+  /** The weight of the alignment rule. Updated live by the GUI. */
+  private volatile double alignmentWeight = 1.0;
+
+  /** The weight of the cohesion rule. Updated live by the GUI. */
+  private volatile double cohesionWeight = 1.0;
 
   /** The most recent state this boid broadcast, readable by the coordinator. */
   private BoidState lastState;
@@ -150,9 +152,9 @@ final class Boid implements Actor {
             vx,
             vy,
             previous.getBoids(),
-            SEPARATION_WEIGHT,
-            ALIGNMENT_WEIGHT,
-            COHESION_WEIGHT,
+            separationWeight,
+            alignmentWeight,
+            cohesionWeight,
             perceptionRadius,
             maxSpeed,
             previous.getWorldWidth(),
@@ -178,6 +180,31 @@ final class Boid implements Actor {
    */
   BoidState getLastState() {
     return lastState;
+  }
+
+  /**
+   * Updates the perception radius and the three flocking weights and the maximum speed of this boid
+   * at runtime. The values are written to {@code volatile} fields so the live change is visible to
+   * this boid's event loop thread when the GUI slider fires on the Event Dispatch Thread.
+   * Participates in: FR-002, FR-003, FR-009.
+   *
+   * @param separationWeight the new separation weight
+   * @param alignmentWeight the new alignment weight
+   * @param cohesionWeight the new cohesion weight
+   * @param perceptionRadius the new perception radius
+   * @param maxSpeed the new maximum speed
+   */
+  void updateParameters(
+      final double separationWeight,
+      final double alignmentWeight,
+      final double cohesionWeight,
+      final double perceptionRadius,
+      final double maxSpeed) {
+    this.separationWeight = separationWeight;
+    this.alignmentWeight = alignmentWeight;
+    this.cohesionWeight = cohesionWeight;
+    this.perceptionRadius = perceptionRadius;
+    this.maxSpeed = maxSpeed;
   }
 
   /**

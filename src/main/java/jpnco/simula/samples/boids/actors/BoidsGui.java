@@ -3,14 +3,21 @@ package jpnco.simula.samples.boids.actors;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Path2D;
+import java.util.Hashtable;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import jpnco.simula.Actor;
@@ -18,6 +25,7 @@ import jpnco.simula.Engine;
 import jpnco.simula.Event;
 import jpnco.simula.engine.ActorDelegate;
 import jpnco.simula.engine.IdBuilder;
+import jpnco.simula.samples.boids.FlockParameters;
 import jpnco.simula.samples.boids.states.BoidView;
 import jpnco.simula.samples.boids.states.FlockState;
 
@@ -30,10 +38,15 @@ import jpnco.simula.samples.boids.states.FlockState;
  * by the window size divided by the world size, so the flock is visible as it forms and moves. The
  * status line shows the simulated time and the number of boids.
  *
+ * <p>A column of five sliders (separation, alignment, cohesion weights, perception radius and max
+ * speed) lets the user tune the flocking live: whenever a slider moves, the window pushes a fresh
+ * {@link FlockParameters} to the attached {@link BoidsCoordinator}, which forwards it to every boid
+ * (FR-009). The sliders are inert until {@link #attach} is called.
+ *
  * <p>This class is demonstration code under the {@code samples} package; it is not part of the
  * framework contract; per the project constitution it MUST satisfy the coverage gate.
  *
- * <p>Implements: FR-006, SC-004.
+ * <p>Implements: FR-006, FR-009, SC-004.
  */
 public final class BoidsGui extends JFrame implements Actor {
 
@@ -49,8 +62,11 @@ public final class BoidsGui extends JFrame implements Actor {
   /** The milliseconds between two repaints. */
   private static final int REPAINT_INTERVAL_MILLIS = 100;
 
-  /** The diameter of a boid in pixels. */
-  private static final int BOID_DIAMETER = 8;
+  /** The length of a boid triangle from tail to nose, in pixels. */
+  private static final int BOID_LENGTH = 14;
+
+  /** The half width of a boid triangle, in pixels. */
+  private static final int BOID_HALF_WIDTH = 4;
 
   /** The background colour of the world. */
   private static final Color BACKGROUND = new Color(235, 240, 245);
@@ -73,6 +89,24 @@ public final class BoidsGui extends JFrame implements Actor {
   /** The status label showing the time and boid count. */
   private final JLabel status;
 
+  /** The slider controlling the perception radius. */
+  private final JSlider perceptionSlider;
+
+  /** The slider controlling the separation weight. */
+  private final JSlider separationSlider;
+
+  /** The slider controlling the alignment weight. */
+  private final JSlider alignmentSlider;
+
+  /** The slider controlling the cohesion weight. */
+  private final JSlider cohesionSlider;
+
+  /** The slider controlling the maximum speed. */
+  private final JSlider speedSlider;
+
+  /** The coordinator that receives live parameter changes, or {@code null} if not yet attached. */
+  private volatile BoidsCoordinator coordinator;
+
   /** The latest snapshot received on {@link Topics#NEW_STATE}. */
   private volatile FlockState state;
 
@@ -94,6 +128,22 @@ public final class BoidsGui extends JFrame implements Actor {
     grid.setPreferredSize(new Dimension(WIDTH, HEIGHT - 60));
     add(grid, BorderLayout.CENTER);
 
+    final JPanel controls = new JPanel();
+    controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+    controls.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    separationSlider =
+        newSlider(0, 500, (int) (FlockParameters.DEFAULT.getSeparationWeight() * 100));
+    alignmentSlider = newSlider(0, 500, (int) (FlockParameters.DEFAULT.getAlignmentWeight() * 100));
+    cohesionSlider = newSlider(0, 500, (int) (FlockParameters.DEFAULT.getCohesionWeight() * 100));
+    perceptionSlider = newSlider(5, 200, (int) FlockParameters.DEFAULT.getPerceptionRadius());
+    speedSlider = newSlider(1, 20, (int) FlockParameters.DEFAULT.getMaxSpeed());
+    controls.add(sliderRow("Separation", separationSlider));
+    controls.add(sliderRow("Alignment", alignmentSlider));
+    controls.add(sliderRow("Cohesion", cohesionSlider));
+    controls.add(sliderRow("Perception radius", perceptionSlider));
+    controls.add(sliderRow("Max speed", speedSlider));
+    add(controls, BorderLayout.EAST);
+
     status = new JLabel(" ");
     status.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
     status.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
@@ -104,6 +154,95 @@ public final class BoidsGui extends JFrame implements Actor {
 
     final Timer timer = new Timer(REPAINT_INTERVAL_MILLIS, e -> refresh());
     timer.start();
+  }
+
+  /**
+   * Creates a slider in the given integer range with the given initial value and a permanent change
+   * listener that pushes the current parameters to the attached coordinator. Participates in:
+   * FR-006, FR-009, SC-004.
+   *
+   * @param min the minimum slider value
+   * @param max the maximum slider value
+   * @param value the initial slider value
+   * @return the configured slider
+   */
+  private JSlider newSlider(final int min, final int max, final int value) {
+    final JSlider slider = new JSlider(min, max, value);
+    slider.setMajorTickSpacing((max - min) / 2);
+    slider.setPaintTicks(true);
+    slider.setPaintLabels(true);
+    slider.setLabelTable(createLabelTable(min, max));
+    slider.addChangeListener(e -> pushParameters());
+    return slider;
+  }
+
+  /**
+   * Builds the label table that paints the minimum and maximum values at the two ends of a slider.
+   * Participates in: FR-006, FR-009, SC-004.
+   *
+   * @param min the minimum slider value
+   * @param max the maximum slider value
+   * @return the label table mapping the two boundary values to their labels
+   */
+  private static Hashtable<Integer, JLabel> createLabelTable(final int min, final int max) {
+    final Hashtable<Integer, JLabel> table = new Hashtable<>();
+    table.put(min, new JLabel(String.valueOf(min)));
+    table.put(max, new JLabel(String.valueOf(max)));
+    return table;
+  }
+
+  /**
+   * Builds a horizontal row holding a label, the current value and a slider; the current value is
+   * updated live as the slider moves. Participates in: FR-006, FR-009, SC-004.
+   *
+   * @param label the label text
+   * @param slider the slider
+   * @return the row panel
+   */
+  private JPanel sliderRow(final String label, final JSlider slider) {
+    final JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+    final JLabel caption = new JLabel(label);
+    caption.setPreferredSize(new Dimension(110, 20));
+    final JLabel value = new JLabel(String.valueOf(slider.getValue()));
+    value.setPreferredSize(new Dimension(40, 20));
+    value.setHorizontalAlignment(SwingConstants.RIGHT);
+    slider.addChangeListener(e -> value.setText(String.valueOf(slider.getValue())));
+    row.add(caption);
+    row.add(value);
+    row.add(slider);
+    return row;
+  }
+
+  /**
+   * Reads all sliders and, if a coordinator is attached, pushes the resulting {@link
+   * FlockParameters} to it so every boid adopts the new values at its next tick. Participates in:
+   * FR-006, FR-009, SC-004.
+   */
+  private void pushParameters() {
+    final BoidsCoordinator target = coordinator;
+    if (target != null) {
+      target.updateParameters(
+          new FlockParameters(
+              target.getBoidCount(),
+              separationSlider.getValue() / 100.0,
+              alignmentSlider.getValue() / 100.0,
+              cohesionSlider.getValue() / 100.0,
+              perceptionSlider.getValue(),
+              speedSlider.getValue(),
+              target.snapshot() == null ? 800.0 : target.snapshot().getWorldWidth(),
+              target.snapshot() == null ? 600.0 : target.snapshot().getWorldHeight()));
+    }
+  }
+
+  /**
+   * Attaches the coordinator whose boids the sliders control. Until this is called the sliders do
+   * nothing. Participates in: FR-006, FR-009, SC-004.
+   *
+   * @param coordinator the coordinator to control
+   */
+  public void attach(final BoidsCoordinator coordinator) {
+    this.coordinator = coordinator;
+    pushParameters();
   }
 
   /**
@@ -208,8 +347,8 @@ public final class BoidsGui extends JFrame implements Actor {
     }
 
     /**
-     * Draws each boid as a circle at its position scaled to the panel size. Participates in:
-     * FR-006, SC-004.
+     * Draws each boid as an elongated triangle whose nose points in the direction of its velocity.
+     * Participates in: FR-006, SC-004.
      *
      * @param g2 the graphics context
      * @param state the state to draw
@@ -218,10 +357,20 @@ public final class BoidsGui extends JFrame implements Actor {
       final double scaleX = getWidth() / state.getWorldWidth();
       final double scaleY = getHeight() / state.getWorldHeight();
       g2.setColor(BOID_COLOR);
+      final Path2D base = new Path2D.Double();
+      base.moveTo(BOID_LENGTH / 2.0, 0.0);
+      base.lineTo(-BOID_LENGTH / 2.0, -BOID_HALF_WIDTH);
+      base.lineTo(-BOID_LENGTH / 2.0, BOID_HALF_WIDTH);
+      base.closePath();
+      final AffineTransform transform = new AffineTransform();
       for (final BoidView boid : state.getBoids()) {
-        final int px = (int) Math.round(boid.getX() * scaleX);
-        final int py = (int) Math.round(boid.getY() * scaleY);
-        g2.fillOval(px - BOID_DIAMETER / 2, py - BOID_DIAMETER / 2, BOID_DIAMETER, BOID_DIAMETER);
+        final double px = boid.getX() * scaleX;
+        final double py = boid.getY() * scaleY;
+        final double angle = Math.atan2(boid.getVy(), boid.getVx());
+        transform.setToIdentity();
+        transform.translate(px, py);
+        transform.rotate(angle);
+        g2.fill(base.createTransformedShape(transform));
       }
     }
   }

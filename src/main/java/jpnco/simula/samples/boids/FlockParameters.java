@@ -13,7 +13,7 @@ package jpnco.simula.samples.boids;
 public final class FlockParameters {
 
   /** The default number of boids in the flock. */
-  private static final int DEFAULT_BOID_COUNT = 40;
+  private static final int DEFAULT_BOID_COUNT = 200;
 
   /** The default separation weight. */
   private static final double DEFAULT_SEPARATION_WEIGHT = 1.0;

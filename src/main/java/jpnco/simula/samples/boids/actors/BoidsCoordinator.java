@@ -246,6 +246,25 @@ public final class BoidsCoordinator implements Actor {
   }
 
   /**
+   * Applies a live parameter change to every boid of the flock. The GUI sliders call this on the
+   * Event Dispatch Thread while the simulation runs; each {@link Boid} stores the values in {@code
+   * volatile} fields so the change is picked up on its own event loop thread at the next tick.
+   * Participates in: FR-003, FR-009.
+   *
+   * @param updated the parameters to apply to every boid
+   */
+  public void updateParameters(final FlockParameters updated) {
+    for (final Boid boid : boids) {
+      boid.updateParameters(
+          updated.getSeparationWeight(),
+          updated.getAlignmentWeight(),
+          updated.getCohesionWeight(),
+          updated.getPerceptionRadius(),
+          updated.getMaxSpeed());
+    }
+  }
+
+  /**
    * Returns the latch released once the demo completes. Participates in: FR-005, SC-002.
    *
    * @return the completion latch

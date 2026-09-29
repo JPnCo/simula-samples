@@ -93,4 +93,14 @@ class BoidTest {
     assertEquals(-1.0, boid.getVy());
     assertEquals(boid.getDelegate(), boid.getDelegate());
   }
+
+  @Test
+  void updateParameters_caps_the_velocity_at_the_new_max_speed() {
+    final Boid boid = new Boid(engine, 0, 10.0, 10.0, 6.0, 0.0, 40.0, 4.0);
+    boid.updateParameters(1.0, 1.0, 1.0, 40.0, 2.0);
+    boid.process(nextEvent(boid, 1, emptyFlock(0)));
+    final BoidState state = boid.getLastState();
+    final double speed = Math.hypot(state.getVx(), state.getVy());
+    assertTrue(speed <= 2.0, "the lowered max speed must cap the velocity");
+  }
 }

@@ -44,7 +44,7 @@ jpnco/simula/samples/boids/
 | `BoidsCoordinator` | Owns the flock, pilots the ticks, assembles `FlockState` snapshots, tracks total distance, stops at the duration |
 | `Boid` | Autonomous agent; applies the flocking rules to its position/velocity each tick and broadcasts its state |
 | `BoidsMonitor` | Console display; prints each `FlockState` |
-| `BoidsGui` | Swing window; renders the flock and repaints at a fixed cadence |
+| `BoidsGui` | Swing window; renders the flock as direction-oriented triangles, repaints at a fixed cadence, and exposes five live tuning sliders |
 | `Barrier` (framework) | Synchronizes the per-tick boid reports, firing `boids-ready` when all boids reported |
 
 ## Event Topics
@@ -116,6 +116,35 @@ Actors hold only their own private state and exchange immutable report objects o
 coordinator owns the mutable `totalDistance` and the boid list on its own thread; each boid's stored
 `lastState` is written on its own thread before the report is broadcast. `FlockState` is an
 immutable snapshot read safely by the displays.
+
+## GUI Rendering & Live Controls
+
+`BoidsGui` renders the flock as a Swing window. It is itself an `Actor`: it subscribes to
+`new-state`, stores the latest `FlockState` snapshot, and a `Timer` (100 ms) polls that snapshot on
+the Event Dispatch Thread (EDT) and repaints the panel.
+
+### Triangle rendering
+
+Each boid is drawn as an **elongated triangle** whose nose points in the direction of flight. The
+panel builds a local `Path2D` triangle (nose at `+BOID_LENGTH/2`, tail corners at
+`±BOID_HALF_WIDTH`) and, per boid, composes `translate(px, py)` then `rotate(angle)` where
+`angle = atan2(vy, vx)`, so the triangle is rotated around the boid centre and placed at its
+scaled pixel position. The drawn shape therefore always faces the velocity vector.
+
+### Live parameter sliders
+
+A column of five sliders (separation, alignment and cohesion weights, perception radius and max
+speed) lets the user tune the flock at runtime. Each slider displays its minimum and maximum at its
+two ends and the current value in the row label, updated live as the slider moves. When a slider
+moves, `pushParameters()` rebuilds a `FlockParameters` from all five current values and calls
+`BoidsCoordinator.updateParameters(...)`, which forwards the values to every `Boid` via its
+`updateParameters(...)`. The boids store these values in `volatile` fields, so the live change is
+picked up on each boid's own event loop thread at the next tick. The sliders are inert until
+`BoidsGui.attach(coordinator)` is called (done by `BoidsDemo.runGui`).
+
+This runtime control complements the command-line parameters: `--boids=`, `--perception-radius=`
+and `--max-speed=` configure the run at launch, while the sliders adjust the weights, perception
+radius and max speed live during a GUI run (FR-009).
 
 ## CLI
 

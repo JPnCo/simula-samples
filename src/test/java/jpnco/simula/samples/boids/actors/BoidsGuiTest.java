@@ -2,6 +2,7 @@ package jpnco.simula.samples.boids.actors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.awt.Graphics;
@@ -10,9 +11,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import jpnco.simula.Engine;
 import jpnco.simula.Event;
+import jpnco.simula.engine.EngineImpl;
 import jpnco.simula.engine.EventImpl;
+import jpnco.simula.engine.ExecutionMode;
+import jpnco.simula.samples.boids.FlockParameters;
 import jpnco.simula.samples.boids.states.BoidView;
 import jpnco.simula.samples.boids.states.FlockState;
 import org.junit.jupiter.api.Test;
@@ -81,5 +87,50 @@ class BoidsGuiTest {
       g.dispose();
       gui.dispose();
     }
+  }
+
+  @Test
+  void sliders_push_parameters_to_the_attached_coordinator() throws Exception {
+    final EngineImpl root = new EngineImpl("gui-root", 1, ExecutionMode.VIRTUAL);
+    final FlockParameters params = new FlockParameters(4, 1.0, 1.0, 1.0, 40.0, 4.0, 800.0, 600.0);
+    final BoidsCoordinator coordinator = new BoidsCoordinator(root, params, 120);
+    coordinator.seed();
+    root.registerAndStart(coordinator);
+
+    final BoidsGui gui = new BoidsGui(root);
+    gui.attach(coordinator);
+    try {
+      SwingUtilities.invokeAndWait(
+          () -> {
+            try {
+              final Field speedField = BoidsGui.class.getDeclaredField("speedSlider");
+              speedField.setAccessible(true);
+              ((JSlider) speedField.get(gui)).setValue(1);
+            } catch (final ReflectiveOperationException exc) {
+              throw new RuntimeException(exc);
+            }
+          });
+      root.start();
+      root.signal(EventImpl.createEvent(Engine.TIME_EVENT, root, 1));
+      final FlockState snap = awaitSnapshot(coordinator);
+      assertNotNull(snap);
+      for (final BoidView boid : snap.getBoids()) {
+        assertTrue(Math.hypot(boid.getVx(), boid.getVy()) <= 1.0 + 1e-9);
+      }
+    } finally {
+      root.stop();
+      gui.dispose();
+    }
+  }
+
+  private static FlockState awaitSnapshot(final BoidsCoordinator coordinator)
+      throws InterruptedException {
+    final long deadline = System.currentTimeMillis() + 5000L;
+    FlockState state = coordinator.snapshot();
+    while (state == null && System.currentTimeMillis() < deadline) {
+      Thread.sleep(10L);
+      state = coordinator.snapshot();
+    }
+    return state;
   }
 }
