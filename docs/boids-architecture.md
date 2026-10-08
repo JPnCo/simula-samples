@@ -1,6 +1,6 @@
 # Architecture: Boids Flocking Sample
 
-Architecture of the `jpnco.simula.samples.boids` sample, a runnable illustration of the simula
+Architecture of the `fr.jpnco.simula.samples.boids` sample, a runnable illustration of the simula
 framework with a large population of autonomous agents. It models a bounded, toroidal 2D world of
 boid agents that move by the classic Reynolds flocking rules (separation, alignment, cohesion)
 until the console run stops, and can be rendered in a Swing window.
@@ -10,9 +10,9 @@ information. All structural diagrams are Mermaid.
 
 | Item | Value |
 |------|-------|
-| Base package | `jpnco.simula.samples.boids` |
+| Base package | `fr.jpnco.simula.samples.boids` |
 | Entry point | `BoidsDemo` (`main`) |
-| Depends on | framework **core** API (`jpnco.simula.*`), not the framework's `examples` |
+| Depends on | framework **core** API (`fr.jpnco.simula.*`), not the framework's `examples` |
 | Execution modes | `ExecutionMode.VIRTUAL` (default) / `PLATFORM` (`classic`) |
 | Determinism | fixed `RANDOM_SEED`; identical outcome across modes |
 | Coverage | JaCoCo ≥97% line and branch (Principle II) |
@@ -20,7 +20,7 @@ information. All structural diagrams are Mermaid.
 ## Packages
 
 ```text
-jpnco/simula/samples/boids/
+fr/jpnco/simula/samples/boids/
 ├── BoidsDemo.java        # runnable entry point (main)
 ├── BoidsCli.java         # command-line parsing (mode, display, parameters)
 ├── FlockParameters.java  # immutable, configurable flocking parameters

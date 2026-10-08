@@ -25,7 +25,7 @@ implementation and testing of each story.
 ## Path Conventions
 
 - **Single project**: `src/`, `src/test/` at repository root
-- Sample code under `src/main/java/jpnco/simula/samples/trafficlight/`
+- Sample code under `src/main/java/fr/jpnco/simula/samples/trafficlight/`
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -33,7 +33,7 @@ implementation and testing of each story.
 
 - [x] T001 Add JaCoCo coverage plugin to `pom.xml` with 97% line and branch
       thresholds (supports SC-006 / Constitution Principle II)
-- [x] T002 [P] Verify the build resolves `jpnco:simula:0.0.1-SNAPSHOT` and
+- [x] T002 [P] Verify the build resolves `fr.jpnco.simula:simula-core:0.0.1-SNAPSHOT` and
       compiles via `mvn compile` (framework dependency present in `pom.xml`)
 
 ---
@@ -45,23 +45,23 @@ implementation and testing of each story.
 **CRITICAL**: No user story work can begin until this phase is complete
 
 - [x] T003 Make the `states/` package fully self-contained: correct Javadoc
-      `{@link jpnco.simula.examples...}` references to
-      `jpnco.simula.samples...` in
-      `src/main/java/jpnco/simula/samples/trafficlight/states/GridState.java`,
+      `{@link fr.jpnco.simula.examples...}` references to
+      `fr.jpnco.simula.samples...` in
+      `src/main/java/fr/jpnco/simula/samples/trafficlight/states/GridState.java`,
       `TrafficLightState.java`, `VehicleState.java` (Constitution Principle IX:
       self-contained sample, no `examples` dependency)
 - [x] T004 [P] Write failing unit tests for `states/Direction.java`
       (rowDelta/colDelta, isVertical, turnRight, turnLeft for all four
       directions) in
-      `src/test/java/jpnco/simula/samples/trafficlight/states/DirectionTest.java`
+      `src/test/java/fr/jpnco/simula/samples/trafficlight/states/DirectionTest.java`
 - [x] T005 [P] Write failing unit tests for `states/GridState.java`
       (immutability/copy, getVehicles unmodifiable, lightState band selection,
       crossingsAt) in
-      `src/test/java/jpnco/simula/samples/trafficlight/states/GridStateTest.java`
+      `src/test/java/fr/jpnco/simula/samples/trafficlight/states/GridStateTest.java`
 - [x] T006 [P] Write failing unit tests for `states/VehicleView.java`,
       `states/TrafficLightState.java`, `states/VehicleState.java` (getters,
       enteredCells unmodifiable copy) in
-      `src/test/java/jpnco/simula/samples/trafficlight/states/`
+      `src/test/java/fr/jpnco/simula/samples/trafficlight/states/`
       (`VehicleViewTest.java`, `TrafficLightStateTest.java`,
       `VehicleStateTest.java`)
 
@@ -78,7 +78,7 @@ outcome summary, and exits cleanly (FR-001, FR-002, FR-003, FR-004, FR-005,
 FR-006; SC-001, SC-002).
 
 **Independent Test**: `mvn test` (actors unit tests green); run
-`jpnco.simula.samples.trafficlight.TrafficLightDemo` in console mode and observe
+`fr.jpnco.simula.samples.trafficlight.TrafficLightDemo` in console mode and observe
 tick-by-tick output, a bounded run, an outcome summary
 (`vehicles=12, crossings=<m>`), and a clean exit.
 
@@ -86,25 +86,25 @@ tick-by-tick output, a bounded run, an outcome summary
 
 - [x] T007 [P] [US1] Write failing unit tests for `actors/CrossingTrafficLight.java`
       band-state computation (green/orange/red timing, phase offset, cycle) in
-      `src/test/java/jpnco/simula/samples/trafficlight/actors/CrossingTrafficLightTest.java`
+      `src/test/java/fr/jpnco/simula/samples/trafficlight/actors/CrossingTrafficLightTest.java`
 - [x] T008 [P] [US1] Write failing unit tests for `actors/Vehicle.java`
       (stop at LIGHT_POSITION on red, advance on green, edge forced turn,
       never-reverse direction rules, cells entered) in
-      `src/test/java/jpnco/simula/samples/trafficlight/actors/VehicleTest.java`
+      `src/test/java/fr/jpnco/simula/samples/trafficlight/actors/VehicleTest.java`
 - [x] T009 [P] [US1] Write failing unit tests for `actors/TrafficCoordinator.java`
       (tick grouping waits for all reports, corner cells stay green, snapshot
       assembly, crossing counters, duration stop) in
-      `src/test/java/jpnco/simula/samples/trafficlight/actors/TrafficCoordinatorTest.java`
+      `src/test/java/fr/jpnco/simula/samples/trafficlight/actors/TrafficCoordinatorTest.java`
 
 ### Implementation for User Story 1
 
 - [x] T010 [US1] Rewire `actors/` to be self-contained: replace every
-      `import jpnco.simula.examples.trafficlight.*` with the local
-      `jpnco.simula.samples.trafficlight.*` types in
+      `import fr.jpnco.simula.examples.trafficlight.*` with the local
+      `fr.jpnco.simula.samples.trafficlight.*` types in
       `actors/CrossingTrafficLight.java`, `actors/TrafficCoordinator.java`,
       `actors/Vehicle.java`, `actors/TrafficMonitor.java`
 - [x] T011 [US1] Rewire `TrafficLightDemo.java` to use the local samples
-      actors/states (remove `jpnco.simula.examples.trafficlight.*` imports)
+      actors/states (remove `fr.jpnco.simula.examples.trafficlight.*` imports)
       so the console run produces the outcome summary
 - [x] T012 [US1] Verify console flow end to end: bounded duration,
       `=== OUTCOME (<mode>) ===` with `vehicles=12, crossings=<m>`, clean exit
@@ -128,10 +128,10 @@ when closed.
 - [x] T013 [P] [US2] Write a focused unit test for `actors/TrafficLightGui.java`
       that the actor subscribes to `new-state` and stores the latest `GridState`
       (lightweight, no full Swing event loop) in
-      `src/test/java/jpnco/simula/samples/trafficlight/actors/TrafficLightGuiTest.java`
+      `src/test/java/fr/jpnco/simula/samples/trafficlight/actors/TrafficLightGuiTest.java`
 - [x] T014 [US2] Rewire `actors/TrafficLightGui.java` to be self-contained:
-      replace `jpnco.simula.examples.trafficlight.*` imports with local
-      `jpnco.simula.samples.trafficlight.*` types
+      replace `fr.jpnco.simula.examples.trafficlight.*` imports with local
+      `fr.jpnco.simula.samples.trafficlight.*` types
 - [x] T015 [US2] Verify the GUI flow: window opens, renders grid/roads/lights/
       vehicles, repaints on new states, stops when closed (FR-007, SC-004)
 
@@ -153,7 +153,7 @@ identical.
 - [x] T016 [P] [US3] Write a determinism test that runs the same seeded scenario
       in both `ExecutionMode.VIRTUAL` and `ExecutionMode.PLATFORM` and asserts
       the final outcome (total crossings) is identical, in
-      `src/test/java/jpnco/simula/samples/trafficlight/DeterminismTest.java`
+      `src/test/java/fr/jpnco/simula/samples/trafficlight/DeterminismTest.java`
 
 ### Implementation for User Story 3
 
@@ -170,7 +170,7 @@ identical.
 **Purpose**: Improvements and obligations affecting the whole sample
 
 - [x] T018 Update `docs/trafficligth-architecture.md` to describe the CURRENT
-      `jpnco.simula.samples.trafficlight` architecture (packages, actors,
+      `fr.jpnco.simula.samples.trafficlight` architecture (packages, actors,
       topics, tick flow, thread-safety, determinism, CLI) with Mermaid
       diagrams and NO historical information (Constitution Principle IX)
 - [x] T019 Run `specs/001-trafficlight/quickstart.md` validation end to end
@@ -262,7 +262,7 @@ current implementation. All functional, plan, and coverage requirements are met;
 two constitution-governance obligations below remain.
 
 - [x] T021 Add FR/SC requirement citations to the Javadoc of every production class and
-      method under `src/main/java/jpnco/simula/samples/trafficlight/` so each method's
+      method under `src/main/java/fr/jpnco/simula/samples/trafficlight/` so each method's
       documentation names the functional-requirement or success-criterion identifiers
       (e.g. FR-003, SC-003) it participates in implementing, per Constitution Principle VI
 - [x] T022 Declare and apply an automated code formatter for the sample (e.g. add

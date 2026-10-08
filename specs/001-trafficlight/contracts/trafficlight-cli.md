@@ -6,7 +6,7 @@ interface through its runnable entry point.
 ## Invocation
 
 ```
-java -cp <classpath> jpnco.simula.samples.trafficlight.TrafficLightDemo [mode] [display]
+java -cp <classpath> fr.jpnco.simula.samples.trafficlight.TrafficLightDemo [mode] [display]
 ```
 
 Arguments are case-insensitive, order-independent, and optional.

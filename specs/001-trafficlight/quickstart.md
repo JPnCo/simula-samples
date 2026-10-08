@@ -6,7 +6,7 @@ proves the feature works end-to-end.
 ## Prerequisites
 
 - JDK 25 and Maven (3.9+).
-- The `jpnco:simula:0.0.1-SNAPSHOT` framework installed in the local Maven repo
+- The `fr.jpnco.simula:simula-core:0.0.1-SNAPSHOT` framework installed in the local Maven repo
   (run `mvn install` in the SIMULA project first).
 
 ## Setup
@@ -26,9 +26,9 @@ mvn package     # produces target/simula-samples-0.0.1-SNAPSHOT.jar
 ## Run (console)
 
 ```bash
-mvn exec:java -Dexec.mainClass=jpnco.simula.samples.trafficlight.TrafficLightDemo
+mvn exec:java -Dexec.mainClass=fr.jpnco.simula.samples.trafficlight.TrafficLightDemo
 # or with the built classpath:
-java -cp "target/classes:<framework-jar>" jpnco.simula.samples.trafficlight.TrafficLightDemo
+java -cp "target/classes:<framework-jar>" fr.jpnco.simula.samples.trafficlight.TrafficLightDemo
 ```
 
 **Expected**: the simulation advances one tick per simulated second, then prints
@@ -44,7 +44,7 @@ and exits cleanly.
 ## Run (GUI)
 
 ```bash
-java -cp "target/classes:<framework-jar>" jpnco.simula.samples.trafficlight.TrafficLightDemo gui
+java -cp "target/classes:<framework-jar>" fr.jpnco.simula.samples.trafficlight.TrafficLightDemo gui
 ```
 
 **Expected**: a Swing window opens showing the grid, roads, intersection traffic
@@ -54,8 +54,8 @@ when the window is closed.
 ## Validate determinism (SC-003)
 
 ```bash
-java -cp "target/classes:<framework-jar>" jpnco.simula.samples.trafficlight.TrafficLightDemo
-java -cp "target/classes:<framework-jar>" jpnco.simula.samples.trafficlight.TrafficLightDemo classic
+java -cp "target/classes:<framework-jar>" fr.jpnco.simula.samples.trafficlight.TrafficLightDemo
+java -cp "target/classes:<framework-jar>" fr.jpnco.simula.samples.trafficlight.TrafficLightDemo classic
 ```
 
 **Expected**: both runs print an **identical** `vehicles=12, crossings=<m>`

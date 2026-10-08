@@ -1,6 +1,6 @@
 # Sample Architecture: Traffic-Light Grid
 
-Architecture of the `jpnco.simula.samples.trafficlight` sample, a runnable illustration of the simula framework. It models a closed grid of roads with a traffic light at each intersection and a fleet of vehicles that circulate for a fixed number of simulated seconds.
+Architecture of the `fr.jpnco.simula.samples.trafficlight` sample, a runnable illustration of the simula framework. It models a closed grid of roads with a traffic light at each intersection and a fleet of vehicles that circulate for a fixed number of simulated seconds.
 
 This document describes the **current** architecture in which the vehicles, the traffic lights and the coordinator are all autonomous actors that cooperate exclusively by broadcasting events. It is demonstration code under the `samples` package: it is not part of the framework contract, but per the project constitution it is a deliverable that MUST satisfy the 97% line and branch coverage gate (Principle II), with the runnable entry point and Swing rendering glue excluded from the JaCoCo instrumentation.
 
@@ -21,7 +21,7 @@ The sample demonstrates the framework's actor model with a concrete, self-contai
 
 | Item | Value |
 |------|-------|
-| Base package | `jpnco.simula.samples.trafficlight` |
+| Base package | `fr.jpnco.simula.samples.trafficlight` |
 | Sub-packages | `…trafficlight.actors`, `…trafficlight.states` |
 | Coverage gate | Applied at ≥97% line and branch (JaCoCo excludes runnable/GUI glue) |
 | Contract | Not part of the framework contract |
@@ -33,7 +33,7 @@ The sample uses the framework's **delegate pattern**: each actor implements `Act
 ### Package layout
 
 ```text
-jpnco/simula/samples/trafficlight/
+fr/jpnco/simula/samples/trafficlight/
 ├── TrafficLightDemo.java        # runnable entry point (main) — not an actor
 ├── TrafficLightCli.java         # CLI argument parsing (mode + display) — not an actor
 ├── actors/

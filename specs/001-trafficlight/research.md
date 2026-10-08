@@ -3,14 +3,14 @@
 Phase 0 output of the `/speckit.plan` command. Resolves the technical unknowns
 of the feature against the actual framework API and codebase.
 
-## R1 — Should the sample be self-contained under `jpnco.simula.samples.trafficlight`?
+## R1 — Should the sample be self-contained under `fr.jpnco.simula.samples.trafficlight`?
 
 - **Decision**: Yes. The sample MUST implement its own actors and state types
-  using only the framework **core** API (`jpnco.simula.Actor`,
-  `jpnco.simula.Engine`, `jpnco.simula.engine.*`) and MUST NOT depend on the
-  framework's `jpnco.simula.examples.trafficlight` package.
+  using only the framework **core** API (`fr.jpnco.simula.Actor`,
+  `fr.jpnco.simula.Engine`, `fr.jpnco.simula.engine.*`) and MUST NOT depend on the
+  framework's `fr.jpnco.simula.examples.trafficlight` package.
 - **Rationale**: Principle IX defines every sub-package of
-  `jpnco.simula.samples` as a self-contained sample. The current local copy
+  `fr.jpnco.simula.samples` as a self-contained sample. The current local copy
   imports the framework's `examples.trafficlight` classes and defines unused
   duplicate state types, so it neither compiles as a standalone demonstration
   nor documents itself. A sample must stand on its own using the framework API.
@@ -24,7 +24,7 @@ of the feature against the actual framework API and codebase.
 ## R2 — What is the framework core API surface the sample needs?
 
 - **Decision**: The sample uses the framework core types already present in the
-  installed `jpnco:simula:0.0.1-SNAPSHOT` jar:
+  installed `fr.jpnco.simula:simula-core:0.0.1-SNAPSHOT` jar:
   `Actor`, `Engine`, `Event`, `engine.ActorDelegate`, `engine.EngineImpl`,
   `engine.EventImpl`, `engine.ExecutionMode`, `engine.IdBuilder`,
   `actors.Logger` (+ `Logger.Level`).
@@ -60,10 +60,10 @@ of the feature against the actual framework API and codebase.
 ## R5 — What must the sample architecture document describe?
 
 - **Decision**: `docs/trafficligth-architecture.md` MUST describe the current
-  `jpnco.simula.samples.trafficlight` architecture: packages, actors, state
+  `fr.jpnco.simula.samples.trafficlight` architecture: packages, actors, state
   types, event topics, tick interaction, thread-safety model, determinism, and
   CLI, with Mermaid structural diagrams and **no historical information**
   (Principle IX).
 - **Rationale**: The existing document references
-  `jpnco.simula.examples.trafficlight`, which no longer reflects the sample.
+  `fr.jpnco.simula.examples.trafficlight`, which no longer reflects the sample.
 - **Alternatives considered**: leave as-is — rejected: violates G7/Principle IX.

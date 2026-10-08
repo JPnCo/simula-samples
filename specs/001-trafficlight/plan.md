@@ -9,7 +9,7 @@
 ## Summary
 
 Deliver a self-contained, runnable **traffic-light grid sample** under
-`jpnco.simula.samples.trafficlight` that demonstrates the simula framework's
+`fr.jpnco.simula.samples.trafficlight` that demonstrates the simula framework's
 actor model. The sample models a bounded grid of intersections with traffic
 lights and a fixed fleet of circulating vehicles, supports console and
 graphical displays and two execution modes with a deterministic (identical)
@@ -18,8 +18,8 @@ outcome, and is documented by a current per-sample architecture document in
 
 The central technical decision: the sample must be **self-contained** — it
 implements its own actors and state types on top of the framework **core** API
-(`jpnco.simula.*`), and must not depend on the framework's
-`jpnco.simula.examples.trafficlight` package. The current local copy wrongly
+(`fr.jpnco.simula.*`), and must not depend on the framework's
+`fr.jpnco.simula.examples.trafficlight` package. The current local copy wrongly
 imports those `examples` classes (making the local code dead/duplicated); the
 plan re-wires it to use only its own `samples` classes.
 
@@ -27,7 +27,7 @@ plan re-wires it to use only its own `samples` classes.
 
 **Language/Version**: Java 25 (`maven.compiler.source`/`target` 25)
 
-**Primary Dependencies**: `jpnco:simula:0.0.1-SNAPSHOT` (framework, installed in
+**Primary Dependencies**: `fr.jpnco.simula:simula-core:0.0.1-SNAPSHOT` (framework, installed in
 local `.m2`); JUnit Jupiter 5.14 and Mockito 5.22 (test scope)
 
 **Storage**: N/A — the simulation is in-memory; no persistence.
@@ -50,8 +50,8 @@ execution modes; no network or persistence.
 ## Key Decisions
 
 - **Self-contained sample**: the sample implements its own actors and state types on top of the
-  framework **core** API (`jpnco.simula.*`) and does not depend on the framework's
-  `jpnco.simula.examples.trafficlight` package (Constitution Principle IX).
+  framework **core** API (`fr.jpnco.simula.*`) and does not depend on the framework's
+  `fr.jpnco.simula.examples.trafficlight` package (Constitution Principle IX).
 - **Barrier-driven report synchronization**: the coordinator does not count incoming reports
   manually. Two simula `Barrier` actors (in `CYCLIC` mode, distinct-source counting) subscribe to
   `traffic-light-state` and `vehicles-state`; when all 12 lights (respectively all 12 vehicles) of
@@ -87,10 +87,10 @@ execution modes; no network or persistence.
   at the repo root. **Status**: OBSERVATION — no root `architecture.md` exists
   yet; outside this feature's scope but flagged for follow-up.
 - **G7 (Principle IX — Sample Architecture Document)**: every sub-package of
-  `jpnco.simula.samples` MUST have a current architecture document in `docs/`
+  `fr.jpnco.simula.samples` MUST have a current architecture document in `docs/`
   with no historical information. **Status**: **VIOLATION to fix** — the existing
-  `docs/trafficligth-architecture.md` describes `jpnco.simula.examples.trafficlight`
-  and must be updated to reflect the current `jpnco.simula.samples.trafficlight`
+  `docs/trafficligth-architecture.md` describes `fr.jpnco.simula.examples.trafficlight`
+  and must be updated to reflect the current `fr.jpnco.simula.samples.trafficlight`
   architecture.
 
 ## Project Structure
@@ -111,7 +111,7 @@ specs/001-trafficlight/
 ### Source Code (repository root)
 
 ```text
-src/main/java/jpnco/simula/samples/trafficlight/
+src/main/java/fr/jpnco/simula/samples/trafficlight/
 ├── TrafficLightDemo.java        # runnable entry point (main)
 ├── actors/
 │   ├── Topics.java
@@ -128,7 +128,7 @@ src/main/java/jpnco/simula/samples/trafficlight/
     ├── VehicleState.java
     └── VehicleView.java
 
-src/test/java/jpnco/simula/samples/trafficlight/
+src/test/java/fr/jpnco/simula/samples/trafficlight/
 ├── states/
 │   ├── DirectionTest.java
 │   ├── LightStateTest.java
@@ -144,7 +144,7 @@ docs/
 ```
 
 **Structure Decision**: single Maven project; the sample lives under
-`src/main/java/jpnco/simula/samples/trafficlight/` (actors + states sub-packages),
+`src/main/java/fr/jpnco/simula/samples/trafficlight/` (actors + states sub-packages),
 with mirrored unit tests under `src/test/java/...`. The sample depends only on
 the framework core API, not on the framework's `examples` package. The
 per-sample architecture document is maintained in `docs/` per Principle IX.

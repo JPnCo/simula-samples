@@ -1,4 +1,4 @@
-﻿---
+---
 
 description: "Task list for the Boids Flocking Sample feature"
 ---
@@ -25,7 +25,7 @@ implementation and testing of each story.
 ## Path Conventions
 
 - **Single project**: `src/`, `src/test/` at repository root
-- Sample code under `src/main/java/jpnco/simula/samples/boids/`
+- Sample code under `src/main/java/fr/jpnco/simula/samples/boids/`
 
 ## Phase 1: Foundational (Blocking Prerequisites)
 
@@ -34,10 +34,10 @@ implementation and testing of each story.
 - [x] B001 Write failing unit tests for `states/BoidModel.java` (separation,
       alignment, cohesion, configurable weights/radius/max speed, speed
       limiting, toroidal wrap-around) in
-      `src/test/java/jpnco/simula/samples/boids/states/BoidModelTest.java`
+      `src/test/java/fr/jpnco/simula/samples/boids/states/BoidModelTest.java`
 - [x] B002 Write failing unit tests for `states/FlockState.java`,
       `states/BoidView.java`, `states/BoidState.java` (getters, unmodifiable
-      copy, immutability) in `src/test/java/jpnco/simula/samples/boids/states/`
+      copy, immutability) in `src/test/java/fr/jpnco/simula/samples/boids/states/`
       (`FlockStateTest.java`, `BoidViewTest.java`, `BoidStateTest.java`)
 
 **Checkpoint**: Foundation ready - the states package is self-contained and tested.
@@ -54,11 +54,11 @@ and exits cleanly (FR-001..FR-005; SC-001, SC-002).
 
 - [x] B003 [P] Write failing unit tests for `actors/Boid.java` (movement,
       velocity update, toroidal wrap-around) in
-      `src/test/java/jpnco/simula/samples/boids/actors/BoidTest.java`
+      `src/test/java/fr/jpnco/simula/samples/boids/actors/BoidTest.java`
 - [x] B004 [P] Write failing unit tests for `actors/BoidsCoordinator.java`
       (tick grouping waits for all reports, snapshot assembly, duration stop,
       crossing counters) in
-      `src/test/java/jpnco/simula/samples/boids/actors/BoidsCoordinatorTest.java`
+      `src/test/java/fr/jpnco/simula/samples/boids/actors/BoidsCoordinatorTest.java`
 
 ### Implementation for User Story 1
 
@@ -82,7 +82,7 @@ real time until closed (FR-006; SC-004).
 - [x] B008 [P] [US2] Write a focused unit test for `actors/BoidsGui.java` that
       the actor subscribes to `new-state` and stores the latest `FlockState`
       (lightweight, no full Swing event loop) in
-      `src/test/java/jpnco/simula/samples/boids/actors/BoidsGuiTest.java`
+      `src/test/java/fr/jpnco/simula/samples/boids/actors/BoidsGuiTest.java`
 - [x] B009 [US2] Implement `actors/BoidsGui.java` (Swing rendering of the flock)
 - [x] B010 [US2] Verify the GUI flow: window opens, renders moving boids,
       repaints on new states, stops when closed (FR-006, SC-004)
@@ -101,7 +101,7 @@ execution modes (FR-007, FR-008; SC-003, SC-005).
 - [x] B011 [P] [US3] Write a determinism test that runs the same seeded scenario
       in both `ExecutionMode.VIRTUAL` and `ExecutionMode.PLATFORM` and asserts
       the final outcome (total distance) is identical, in
-      `src/test/java/jpnco/simula/samples/boids/DeterminismTest.java`
+      `src/test/java/fr/jpnco/simula/samples/boids/DeterminismTest.java`
 
 ### Implementation for User Story 3
 
@@ -128,7 +128,7 @@ execution modes (FR-007, FR-008; SC-003, SC-005).
 - [x] B016 Confirm JaCoCo reports â‰¥97% line and branch coverage for the sample;
       add missing tests to close any gap (SC-006 / Principle II)
 - [x] B017 Add FR/SC requirement citations to the Javadoc of every production
-      class and method under `src/main/java/jpnco/simula/samples/boids/`
+      class and method under `src/main/java/fr/jpnco/simula/samples/boids/`
       (Constitution Principle VI)
 - [x] B018 Apply the automated code formatter (`mvn fmt:format`) so the sample
       conforms to the project-declared format (Constitution Principle V)

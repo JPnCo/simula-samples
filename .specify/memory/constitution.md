@@ -4,7 +4,7 @@ Sync Impact Report
 Version change: 1.1.0 -> 1.2.0
 Modified principles:
   - II. Coverage Standard: made explicit that every sample under
-    jpnco.simula.samples is a deliverable and MUST satisfy the same 97% line and
+    fr.jpnco.simula.samples is a deliverable and MUST satisfy the same 97% line and
     branch coverage thresholds (no sample exemption).
 Added sections: none
 Removed sections: none
@@ -24,7 +24,7 @@ test written first.
 
 ### II. Coverage Standard
 Every deliverable MUST achieve a line coverage and a branch coverage of at least
-97%. This includes every sample: each sub-package of `jpnco.simula.samples` is a
+97%. This includes every sample: each sub-package of `fr.jpnco.simula.samples` is a
 deliverable and MUST satisfy the same 97% line and branch coverage thresholds.
 Coverage is measured by an automated coverage tool against the code under test;
 a merge or release is blocked when either metric falls below the threshold.
@@ -101,7 +101,7 @@ reliable entry point for contributors. Mermaid keeps diagrams machine-readable,
 version-controllable, and uniformly rendered.
 
 ### IX. Sample Architecture Documents
-Every sub-package of `jpnco.simula.samples` is a sample and MUST have its own
+Every sub-package of `fr.jpnco.simula.samples` is a sample and MUST have its own
 architecture document stored in the `docs` directory (one document per sample).
 The document MUST be updated as part of every change to the sub-package so that
 it always reflects the current architecture of the sample.

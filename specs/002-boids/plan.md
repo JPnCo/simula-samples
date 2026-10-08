@@ -7,7 +7,7 @@
 ## Summary
 
 Deliver a self-contained, runnable **boids flocking sample** under
-`jpnco.simula.samples.boids` that demonstrates the simula framework's actor model
+`fr.jpnco.simula.samples.boids` that demonstrates the simula framework's actor model
 with a large population of autonomous agents. The sample models a bounded 2D world
 of boid agents that move according to the classic Reynolds flocking rules
 (separation, alignment, cohesion), supports console and graphical displays and two
@@ -24,7 +24,7 @@ flock state so movement is deterministic regardless of report arrival order.
 
 **Language/Version**: Java 25 (`maven.compiler.source`/`target` 25)
 
-**Primary Dependencies**: `jpnco:simula:0.0.1-SNAPSHOT` (framework, installed in
+**Primary Dependencies**: `fr.jpnco.simula:simula-core:0.0.1-SNAPSHOT` (framework, installed in
 local `.m2`); JUnit Jupiter 5.14 and Mockito 5.22 (test scope)
 
 **Storage**: N/A — the simulation is in-memory; no persistence.
@@ -46,7 +46,7 @@ execution modes; no network or persistence.
 ## Key Decisions
 
 - **Self-contained sample**: the sample implements its own actors and state types
-  on top of the framework **core** API (`jpnco.simula.*`) and does not depend on
+  on top of the framework **core** API (`fr.jpnco.simula.*`) and does not depend on
   the framework's `examples` package (Constitution Principle IX).
 - **Barrier-driven report synchronization**: the coordinator does not count
   incoming reports manually. A `Barrier` actor (in `CYCLIC` mode, distinct-source
@@ -86,7 +86,7 @@ specs/002-boids/
 ### Source Code (repository root)
 
 ```text
-src/main/java/jpnco/simula/samples/boids/
+src/main/java/fr/jpnco/simula/samples/boids/
 ├── BoidsDemo.java        # runnable entry point (main)
 ├── actors/
 │   ├── Topics.java
@@ -100,7 +100,7 @@ src/main/java/jpnco/simula/samples/boids/
     ├── BoidView.java
     └── BoidState.java
 
-src/test/java/jpnco/simula/samples/boids/
+src/test/java/fr/jpnco/simula/samples/boids/
 ├── states/
 │   ├── BoidModelTest.java
 │   ├── FlockStateTest.java
@@ -137,7 +137,7 @@ docs/
   at the repo root must be updated to include the new sample. **Status**: PASS —
   the plan updates `architecture.md`.
 - **G7 (Principle IX — Sample Architecture Document)**: every sub-package of
-  `jpnco.simula.samples` MUST have a current architecture document in `docs/`.
+  `fr.jpnco.simula.samples` MUST have a current architecture document in `docs/`.
   **Status**: PASS — the plan creates `docs/boids-architecture.md`.
 
 ## Complexity Tracking

@@ -1,0 +1,261 @@
+package fr.jpnco.simula.samples.boids.actors;
+
+import fr.jpnco.simula.Actor;
+import fr.jpnco.simula.Engine;
+import fr.jpnco.simula.Event;
+import fr.jpnco.simula.engine.ActorDelegate;
+import fr.jpnco.simula.engine.EventImpl;
+import fr.jpnco.simula.engine.IdBuilder;
+import fr.jpnco.simula.samples.boids.states.BoidModel;
+import fr.jpnco.simula.samples.boids.states.BoidState;
+import fr.jpnco.simula.samples.boids.states.FlockState;
+
+/**
+ * An autonomous {@link Actor} representing a single boid in the flock. It holds its own identity,
+ * position, velocity, perception radius and maximum speed. On each {@link Topics#NEXT_BOID_STATES}
+ * event it receives the flock state of the previous tick, applies the Reynolds flocking rules
+ * (separation, alignment, cohesion) against the neighbouring boids within its perception radius
+ * (FR-003), advances its position by its velocity (dt = 1) and wraps it around the toroidal world
+ * (FR-004), then broadcasts its new {@link BoidState} on {@link Topics#BOID_STATE}.
+ *
+ * <p>The world dimensions are read from the previous {@link FlockState} each tick. Each boid
+ * decides on the previous tick's flock state so its movement does not depend on report arrival
+ * order (determinism, FR-007, FR-008).
+ *
+ * <p>This class is demonstration code under the {@code samples} package; it is not part of the
+ * framework contract; per the project constitution it MUST satisfy the coverage gate.
+ *
+ * <p>Implements: FR-002, FR-003, FR-004, FR-008.
+ */
+final class Boid implements Actor {
+
+  /** The delegate that runs this actor's event loop. */
+  private final Actor delegate;
+
+  /** The business identity of the boid, carried in its {@link BoidState} and views. */
+  private final Integer boidId;
+
+  /** The unique identity of the actor, taken from the framework {@link IdBuilder}. */
+  private final Integer actorId;
+
+  /** The position of the boid on the horizontal axis. */
+  private double x;
+
+  /** The position of the boid on the vertical axis. */
+  private double y;
+
+  /** The velocity of the boid on the horizontal axis. */
+  private double vx;
+
+  /** The velocity of the boid on the vertical axis. */
+  private double vy;
+
+  /** The radius within which neighbouring boids are considered. Updated live by the GUI. */
+  private volatile double perceptionRadius;
+
+  /**
+   * The maximum speed (the velocity magnitude is capped at this value). Updated live by the GUI.
+   */
+  private volatile double maxSpeed;
+
+  /** The weight of the separation rule. Updated live by the GUI. */
+  private volatile double separationWeight = 1.0;
+
+  /** The weight of the alignment rule. Updated live by the GUI. */
+  private volatile double alignmentWeight = 1.0;
+
+  /** The weight of the cohesion rule. Updated live by the GUI. */
+  private volatile double cohesionWeight = 1.0;
+
+  /** The most recent state this boid broadcast, readable by the coordinator. */
+  private BoidState lastState;
+
+  /**
+   * Creates a boid actor and subscribes it to {@link Topics#NEXT_BOID_STATES}. Participates in:
+   * FR-002, FR-003, FR-004, FR-008.
+   *
+   * @param engine the engine this actor lives on
+   * @param id the boid business identity, carried in the states and views it produces
+   * @param x the initial horizontal position
+   * @param y the initial vertical position
+   * @param vx the initial horizontal velocity
+   * @param vy the initial vertical velocity
+   * @param perceptionRadius the perception radius
+   * @param maxSpeed the maximum speed
+   */
+  Boid(
+      final Engine engine,
+      final int id,
+      final double x,
+      final double y,
+      final double vx,
+      final double vy,
+      final double perceptionRadius,
+      final double maxSpeed) {
+    boidId = id;
+    actorId = IdBuilder.nextId();
+    this.x = x;
+    this.y = y;
+    this.vx = vx;
+    this.vy = vy;
+    this.perceptionRadius = perceptionRadius;
+    this.maxSpeed = maxSpeed;
+    delegate = ActorDelegate.createDelegate(engine, this);
+    engine.subscribe(this, Topics.NEXT_BOID_STATES);
+  }
+
+  /**
+   * Returns the actor delegate that drives this actor. Participates in: FR-002, FR-003, FR-004,
+   * FR-008.
+   *
+   * @return the delegate
+   */
+  @Override
+  public Actor getDelegate() {
+    return delegate;
+  }
+
+  /**
+   * Returns the unique identity of this actor, distinct from the business {@code boidId} carried in
+   * its states. Participates in: FR-002, FR-003, FR-004, FR-008.
+   *
+   * @return the actor id
+   */
+  @Override
+  public Integer getId() {
+    return actorId;
+  }
+
+  /**
+   * Returns the business identity of this boid, the one carried in its states and views.
+   * Participates in: FR-002, FR-003, FR-004, FR-008.
+   *
+   * @return the boid business id
+   */
+  Integer getBoidId() {
+    return boidId;
+  }
+
+  /**
+   * Processes a received event: on {@link Topics#NEXT_BOID_STATES} it advances the boid and
+   * broadcasts its new state. Participates in: FR-002, FR-003, FR-004, FR-008.
+   *
+   * @param event the event to process
+   */
+  @Override
+  public void process(final Event event) {
+    if (Topics.NEXT_BOID_STATES.equals(event.getTopic())) {
+      final int tick = (Integer) event.getParameters()[0];
+      final FlockState previous = (FlockState) event.getParameters()[1];
+      advance(tick, previous);
+    }
+  }
+
+  /**
+   * Advances the boid by one simulated tick: it computes the next velocity from the neighbouring
+   * boids of the previous flock state, applies it (dt = 1) and wraps the position around the
+   * toroidal world, then broadcasts the resulting {@link BoidState} on {@link Topics#BOID_STATE}.
+   * Participates in: FR-002, FR-003, FR-004, FR-008.
+   *
+   * @param tick the current simulated tick
+   * @param previous the flock state of the previous tick, whose boids are the neighbours
+   */
+  private void advance(final int tick, final FlockState previous) {
+    final double[] nextVelocity =
+        BoidModel.nextVelocity(
+            x,
+            y,
+            vx,
+            vy,
+            previous.getBoids(),
+            separationWeight,
+            alignmentWeight,
+            cohesionWeight,
+            perceptionRadius,
+            maxSpeed,
+            previous.getWorldWidth(),
+            previous.getWorldHeight());
+    vx = nextVelocity[0];
+    vy = nextVelocity[1];
+    final double[] position =
+        BoidModel.wrap(x + vx, y + vy, previous.getWorldWidth(), previous.getWorldHeight());
+    x = position[0];
+    y = position[1];
+    lastState = new BoidState(tick, boidId, x, y, vx, vy);
+    getEngine().signal(EventImpl.createEvent(Topics.BOID_STATE, this, lastState));
+  }
+
+  /**
+   * Returns the most recent state this boid broadcast, or {@code null} if it has not broadcast one
+   * yet. The state is stored before it is broadcast, so once the {@link
+   * fr.jpnco.simula.actors.Barrier} has fired for a tick every boid's stored state is current for
+   * that tick and the coordinator can pull it to assemble the snapshot. Participates in: FR-002,
+   * FR-003, FR-004, FR-008.
+   *
+   * @return the last broadcast state, may be {@code null}
+   */
+  BoidState getLastState() {
+    return lastState;
+  }
+
+  /**
+   * Updates the perception radius and the three flocking weights and the maximum speed of this boid
+   * at runtime. The values are written to {@code volatile} fields so the live change is visible to
+   * this boid's event loop thread when the GUI slider fires on the Event Dispatch Thread.
+   * Participates in: FR-002, FR-003, FR-009.
+   *
+   * @param separationWeight the new separation weight
+   * @param alignmentWeight the new alignment weight
+   * @param cohesionWeight the new cohesion weight
+   * @param perceptionRadius the new perception radius
+   * @param maxSpeed the new maximum speed
+   */
+  void updateParameters(
+      final double separationWeight,
+      final double alignmentWeight,
+      final double cohesionWeight,
+      final double perceptionRadius,
+      final double maxSpeed) {
+    this.separationWeight = separationWeight;
+    this.alignmentWeight = alignmentWeight;
+    this.cohesionWeight = cohesionWeight;
+    this.perceptionRadius = perceptionRadius;
+    this.maxSpeed = maxSpeed;
+  }
+
+  /**
+   * Returns the current horizontal position of the boid. Participates in: FR-002, FR-003, FR-004.
+   *
+   * @return the horizontal position
+   */
+  double getX() {
+    return x;
+  }
+
+  /**
+   * Returns the current vertical position of the boid. Participates in: FR-002, FR-003, FR-004.
+   *
+   * @return the vertical position
+   */
+  double getY() {
+    return y;
+  }
+
+  /**
+   * Returns the current horizontal velocity of the boid. Participates in: FR-002, FR-003, FR-004.
+   *
+   * @return the horizontal velocity
+   */
+  double getVx() {
+    return vx;
+  }
+
+  /**
+   * Returns the current vertical velocity of the boid. Participates in: FR-002, FR-003, FR-004.
+   *
+   * @return the vertical velocity
+   */
+  double getVy() {
+    return vy;
+  }
+}

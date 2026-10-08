@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>jpnco</groupId>
+	<groupId>fr.jpnco.simula</groupId>
 	<artifactId>simula-samples</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
@@ -27,8 +27,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>jpnco</groupId>
-			<artifactId>simula</artifactId>
+			<groupId>fr.jpnco.simula</groupId>
+			<artifactId>simula-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -100,12 +100,15 @@
 				<version>${jacoco.version}</version>
 				<configuration>
 					<excludes>
-						<exclude>jpnco/simula/samples/trafficlight/TrafficLightDemo.class</exclude>
-						<exclude>jpnco/simula/samples/trafficlight/actors/TrafficLightGui.class</exclude>
-						<exclude>jpnco/simula/samples/trafficlight/actors/TrafficLightGui$GridPanel.class</exclude>
-						<exclude>jpnco/simula/samples/boids/BoidsDemo.class</exclude>
-						<exclude>jpnco/simula/samples/boids/actors/BoidsGui.class</exclude>
-						<exclude>jpnco/simula/samples/boids/actors/BoidsGui$GridPanel.class</exclude>
+						<exclude>fr/jpnco/simula/samples/trafficlight/TrafficLightDemo.class</exclude>
+						<exclude>fr/jpnco/simula/samples/trafficlight/actors/TrafficLightGui.class</exclude>
+						<exclude>fr/jpnco/simula/samples/trafficlight/actors/TrafficLightGui$GridPanel.class</exclude>
+					<exclude>fr/jpnco/simula/samples/boids/BoidsDemo.class</exclude>
+					<exclude>fr/jpnco/simula/samples/boids/actors/BoidsGui.class</exclude>
+					<exclude>fr/jpnco/simula/samples/boids/actors/BoidsGui$GridPanel.class</exclude>
+					<exclude>fr/jpnco/simula/samples/dashboard/DashboardDemo.class</exclude>
+					<exclude>fr/jpnco/simula/samples/dashboard/actors/DashboardGui.class</exclude>
+					<exclude>fr/jpnco/simula/samples/dashboard/actors/DashboardGui$PlotPanel.class</exclude>
 					</excludes>
 				</configuration>
 				<executions>

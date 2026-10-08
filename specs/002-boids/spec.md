@@ -173,7 +173,7 @@ distance) is identical.
   part of the framework contract, but per the project constitution it is a
   deliverable that MUST satisfy the 97% line and branch coverage thresholds
   (Principle II).
-- The sample ships as a sub-package of `jpnco.simula.samples` and, per the
+- The sample ships as a sub-package of `fr.jpnco.simula.samples` and, per the
   project constitution, MUST have its own architecture document in the `docs`
   directory reflecting its current architecture.
 - A console display is the default; the graphical display is optional and
